@@ -95,7 +95,7 @@ fetch('state.json?' + Date.now()).then(r => r.json()).then(s => {
   if (s.note) { $('note').textContent = '집계 중! 아래는 확정 전 숫자예요.'; $('note').hidden = false; }
   const sol = NAMES.map(n => s.soldiers[n]), w = NAMES.map((_, k) => ((k < 11 ? s.borders[k + 1] : s.borders[0] + 12) - s.borders[k]) / 12 * 100);
   const order = NAMES.map((_, i) => i).sort((a, b) => sol[b] - sol[a]), max = sol[order[0]] || 1;
-  const d = new Date(s.cutoff), when = `${d.getMonth() + 1}월 ${d.getDate()}일 밤 9시 마감`;
+  const d = new Date(s.cutoff < 1e12 ? s.cutoff * 1000 : s.cutoff), when =`${d.getMonth() + 1}월 ${d.getDate()}일 밤 9시 마감`;
   $('sumT').textContent = `DAY ${s.day} 결과`;
   $('sumL').innerHTML = `<li>댓글 <em>${num(s.total_comments)}개</em>, <em>${num(s.total_people)}명</em>이 싸웠어요.</li>
     <li>1등 <em>${FULL[s.top]}띠</em>가 가운데 성을 차지했어요.</li>

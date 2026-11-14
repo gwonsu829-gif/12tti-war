@@ -14,7 +14,7 @@
 @font-face { font-family: G11; src: url(Galmuri11-Bold.woff2); font-display: swap; }
 :root { --navy: #1a1f5c; --dark: #1a1430; --gold: #f2c14e; --red: #ff4d4d; --yel: #ffe14d; --soft: #cfd6ff; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #14226f linear-gradient(#2c4ebe, #14226f) fixed; color: #fff; font: 16px/1.7 G11, 'Malgun Gothic', sans-serif; -webkit-font-smoothing: none; }
+body { margin: 0; background: #14226f linear-gradient(#2c4ebe, #14226f) fixed; color: #fff; font: 16px/1.7 G11, 'Malgun Gothic', sans-serif; -webkit-font-smoothing: none; word-break: keep-all; overflow-wrap: break-word; }   /* 줄이 낱말 중간이 아니라 띄어쓰기에서 넘어가게 */
 main { max-width: 480px; margin: 0 auto; padding: 16px 16px 96px; }
 h1 { margin: 8px 0 0; padding: 10px; text-align: center; font-size: 30px; color: var(--yel); background: #2a0f4a; border: 3px solid var(--gold); outline: 3px solid var(--dark); text-shadow: 3px 3px 0 #b3261e; }
 h2 { margin: 0 0 8px; font-size: 18px; color: var(--yel); }
@@ -33,7 +33,8 @@ label { display: block; margin: 10px 0 2px; font-size: 14px; color: var(--soft);
 label.chk { display: flex; gap: 8px; align-items: flex-start; color: #fff; }
 label.chk input { width: auto; margin-top: 6px; }
 input, select, textarea { font: inherit; width: 100%; padding: 8px; color: var(--dark); background: #fff; border: 3px solid var(--dark); }
-fieldset { margin: 12px 0 0; padding: 4px 10px 10px; border: 3px solid var(--dark); }
+fieldset { margin: 12px 0 0; padding: 4px 10px 10px; border: 3px solid var(--dark); min-width: 0; }
+.two > div { min-width: 0; }
 legend { padding: 0 6px; color: var(--yel); }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .wide { width: 100%; margin-top: 12px; }
@@ -86,7 +87,7 @@ small { display: block; margin-top: 8px; color: var(--soft); font-size: 12px; }
 
     <section class="box" id="apply">
       <h2>궁합 결과지</h2>
-      <p><s>정가 1,900원</s> → <em>오픈 기념 무료, 선착순 100명</em> <span id="left"></span></p>
+      <p><s>정가 1,900원</s> → <em>오픈 기념 무료, 선착순 30명</em> <span id="left"></span></p>
       <ul>
         <li>두 사람 사주 여덟 글자와 오행 표</li>
         <li>두 사람만을 위해 새로 쓰는 풀이 일곱 편</li>
@@ -99,14 +100,14 @@ small { display: block; margin-top: 8px; color: var(--soft); font-size: 12px; }
           <label for="an">이름 또는 별명</label><input id="an" maxlength="10" required autocomplete="off">
           <div class="two">
             <div><label for="ad">생년월일(양력)</label><input type="date" id="ad" required></div>
-            <div><label for="at">태어난 시간(몰라도 돼요)</label><input type="time" id="at"></div>
+            <div><label for="at">태어난 시간(선택)</label><input type="time" id="at"></div>
           </div>
         </fieldset>
         <fieldset><legend>상대</legend>
           <label for="bn">이름 또는 별명</label><input id="bn" maxlength="10" required autocomplete="off">
           <div class="two">
             <div><label for="bd">생년월일(양력)</label><input type="date" id="bd" required></div>
-            <div><label for="bt">태어난 시간(몰라도 돼요)</label><input type="time" id="bt"></div>
+            <div><label for="bt">태어난 시간(선택)</label><input type="time" id="bt"></div>
           </div>
         </fieldset>
         <label for="stage">두 사람은 지금</label>

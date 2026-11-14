@@ -1,98 +1,94 @@
 <!doctype html>
 <!-- 열두 띠 운세. 한 파일이 두 화면을 겸한다.
-     (주소 그대로) 무료 전투력 뽑기 + 궁합 맛보기 + 궁합 결과지 신청 폼 / #k=<id> 결과지
-     결과지는 서버(../server/worker.js)가 사주를 계산하고 AI가 써서 저장한다. 이 파일은 신청을 보내고 받은 것을 그린다. -->
+     (주소 그대로) 궁합 결과지 신청 폼 + 궁합 맛보기 + 무료 전투력 뽑기 / #k=<id> 결과지
+     결과지는 서버(../server/worker.js)가 사주를 계산하고 AI가 써서 저장한다. 이 파일은 신청을 보내고 받은 것을 그린다.
+     후기 전에는 서버가 글 앞 두 편만 보내 주고(locked), 후기를 남기면 나머지를 보낸다. -->
 <html lang="ko">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>열두 띠 운세</title>
-<meta name="description" content="오늘 내 띠 전투력 뽑기, 두 사람만을 위한 궁합 결과지.">
+<meta name="description" content="두 사람만을 위한 궁합 결과지, 오늘 내 띠 전투력 뽑기.">
 <meta property="og:title" content="열두 띠 운세">
-<meta property="og:description" content="오늘 우리 띠 전투력은 몇 위? 두 사람 궁합 결과지도 받아 보세요.">
-<meta property="og:image" content="map.png">
+<meta property="og:description" content="두 사람 띠가 만나면 어떤 그림이 나올까요? 궁합 결과지를 받아 보세요.">
+<meta property="og:image" content="pair/1-3.jpg">
 <style>
 @font-face { font-family: G11; src: url(Galmuri11-Bold.woff2); font-display: swap; }
-:root { --navy: #1a1f5c; --dark: #1a1430; --gold: #f2c14e; --red: #ff4d4d; --yel: #ffe14d; --soft: #cfd6ff; }
+/* 색은 현황판(index.html)과 같은 한지·먹·도장 */
+:root { --ink: #2b1d14; --seal: #c8321e; --cream: #fff6dc; --soft: #7a6652; --paper: #f6ebcc; --line: #e7d6ab; --gold: #f7d977; --shadow: 3px 3px 0 rgba(43, 29, 20, .22); }
 * { box-sizing: border-box; }
-body { margin: 0; background: #14226f linear-gradient(#2c4ebe, #14226f) fixed; color: #fff; font: 16px/1.7 G11, 'Malgun Gothic', sans-serif; -webkit-font-smoothing: none; word-break: keep-all; overflow-wrap: break-word; }   /* 줄이 낱말 중간이 아니라 띄어쓰기에서 넘어가게 */
+body { margin: 0; background: #eeddb4 linear-gradient(#faf0d4, #eeddb4) fixed; color: var(--ink); font: 16px/1.7 G11, 'Malgun Gothic', sans-serif; -webkit-font-smoothing: none; word-break: keep-all; overflow-wrap: break-word; }   /* 줄이 낱말 중간이 아니라 띄어쓰기에서 넘어가게 */
 main { max-width: 480px; margin: 0 auto; padding: 16px 16px 96px; }
-h1 { margin: 8px 0 0; padding: 10px; text-align: center; font-size: 30px; color: var(--yel); background: #2a0f4a; border: 3px solid var(--gold); outline: 3px solid var(--dark); text-shadow: 3px 3px 0 #b3261e; }
-h2 { margin: 0 0 8px; font-size: 18px; color: var(--yel); }
-h3 { margin: 14px 0 4px; font-size: 15px; color: var(--soft); }
+h1 { margin: 8px 0 0; padding: 10px 10px 6px; text-align: center; font-size: 34px; color: var(--ink); border-bottom: 5px solid var(--seal); }
+h2 { margin: 0 0 8px; font-size: 18px; color: var(--seal); }
+h3 { margin: 14px 0 4px; font-size: 15px; color: var(--ink); }
 p { margin: 6px 0; }
 ul, ol { margin: 6px 0; padding-left: 1.3em; }
-a { color: var(--yel); }
+a { color: var(--seal); }
 .back { display: block; margin: 12px 0; font-size: 14px; }
-.box { margin: 16px 0; padding: 12px; background: var(--navy); border: 3px solid var(--gold); outline: 3px solid var(--dark); }
+.box { margin: 16px 0; padding: 12px; background: var(--cream); border: 2px solid var(--ink); box-shadow: var(--shadow); }
 .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-button, .btn { font: inherit; cursor: pointer; padding: 10px 4px; color: var(--dark); background: var(--yel); border: 3px solid var(--dark); text-align: center; text-decoration: none; display: block; }
+button, .btn { font: inherit; cursor: pointer; padding: 10px 4px; color: var(--cream); background: var(--seal); border: 2px solid var(--ink); box-shadow: var(--shadow); text-align: center; text-decoration: none; display: block; }
+.grid button { color: var(--ink); }
 button:disabled { opacity: .6; cursor: wait; }
-button[aria-pressed=true] { outline: 3px solid #fff; }
-button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #fff; }
+button[aria-pressed=true] { outline: 3px solid var(--ink); }
+button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--ink); }
 label { display: block; margin: 10px 0 2px; font-size: 14px; color: var(--soft); }
-label.chk { display: flex; gap: 8px; align-items: flex-start; color: #fff; }
+label.chk { display: flex; gap: 8px; align-items: flex-start; color: var(--ink); }
 label.chk input { width: auto; margin-top: 6px; }
-input, select, textarea { font: inherit; width: 100%; padding: 8px; color: var(--dark); background: #fff; border: 3px solid var(--dark); }
-fieldset { margin: 12px 0 0; padding: 4px 10px 10px; border: 3px solid var(--dark); min-width: 0; }
+input, select, textarea { font: inherit; width: 100%; padding: 8px; color: var(--ink); background: #fff; border: 2px solid var(--ink); }
+fieldset { margin: 12px 0 0; padding: 4px 10px 10px; border: 2px solid var(--ink); min-width: 0; }
 .two > div { min-width: 0; }
-legend { padding: 0 6px; color: var(--yel); }
+legend { padding: 0 6px; color: var(--seal); }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .wide { width: 100%; margin-top: 12px; }
-.out { margin-top: 12px; padding: 10px; background: var(--dark); }
-.big { font-size: 34px; line-height: 1.2; color: var(--yel); }
-.err { color: var(--red); }
-em { font-style: normal; color: var(--yel); }
+.out { margin-top: 12px; padding: 10px; background: var(--paper); }
+.big { font-size: 34px; line-height: 1.2; color: var(--seal); }
+.err { color: var(--seal); }
+em { font-style: normal; color: var(--seal); }
 s { color: var(--soft); }
 small { display: block; margin-top: 8px; color: var(--soft); font-size: 12px; }
-.cover { display: block; width: 100%; height: auto; aspect-ratio: 1; border: 3px solid var(--gold); outline: 3px solid var(--dark); margin-bottom: 12px; }
+.cover { display: block; width: 100%; height: auto; aspect-ratio: 1; border: 2px solid var(--ink); box-shadow: var(--shadow); margin-bottom: 12px; }
+.pics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.pics figure { margin: 0; }
+.pics img { display: block; width: 100%; height: auto; aspect-ratio: 1; border: 2px solid var(--ink); }
+.pics figcaption { text-align: center; font-size: 12px; color: var(--soft); }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
 .saju { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
 .saju small { margin: 0; }
 .saju i { display: block; font-style: normal; font-size: 12px; color: var(--soft); }
-.saju b { display: block; margin: 4px 0; padding: 6px 0; font-size: 26px; line-height: 1.2; color: var(--dark); border: 3px solid var(--dark); font-family: serif; }
+.saju b { display: block; margin: 4px 0; padding: 6px 0; font-size: 26px; line-height: 1.2; color: var(--ink); border: 2px solid var(--ink); font-family: serif; }
 .saju b u { display: block; font: 11px G11, sans-serif; text-decoration: none; }
-.saju b.q { background: #3a3f7a; color: var(--soft); }
+.saju b.q { background: var(--line); color: var(--soft); }
 .bar { display: grid; grid-template-columns: 2.6em 1fr 1.2em; gap: 8px; align-items: center; font-size: 14px; }
-.bar span { height: 12px; background: var(--dark); }
+.bar span { height: 12px; background: var(--line); }
 .bar span i { display: block; height: 100%; }
-.num { color: var(--gold); margin-right: 6px; }
+.num { color: var(--seal); margin-right: 6px; }
 .sec p { white-space: pre-line; }
 .lucky { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; }
-.lucky div { padding: 8px 4px; background: var(--dark); }
+.lucky div { padding: 8px 4px; background: var(--paper); }
+.gate { border: 3px solid var(--seal); }
+.gate ol { color: var(--soft); }
 .stars { display: flex; gap: 6px; }
-.stars button { flex: 1; font-size: 20px; padding: 6px 0; }
-.cta { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px; background: linear-gradient(transparent, #14226f 40%); }
-.cta a { display: block; max-width: 448px; margin: 0 auto; padding: 14px; text-align: center; color: #fff; font-size: 18px; text-decoration: none; background: #b3261e; border: 3px solid var(--gold); outline: 3px solid var(--dark); }
+.stars button { flex: 1; font-size: 22px; padding: 6px 0; color: #c9b48a; background: var(--paper); }
+.stars button[aria-pressed=true] { color: var(--seal); background: var(--gold); outline: none; }
+.cta { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px; background: linear-gradient(transparent, #eeddb4 40%); }
+.cta a { display: block; max-width: 448px; margin: 0 auto; padding: 14px; text-align: center; color: var(--cream); font-size: 18px; text-decoration: none; background: var(--seal); border: 2px solid var(--ink); box-shadow: var(--shadow); }
 </style>
 <main>
   <h1>열두 띠 운세</h1>
   <a class="back" href="./">◀ 전쟁 현황 보러 가기</a>
 
   <div id="home" hidden>
-    <section class="box">
-      <h2>오늘의 전투력 뽑기</h2>
-      <p>내 띠를 누르면 오늘 전투력이 나와요. 하루에 한 번 바뀌어요.</p>
-      <div class="grid" id="pick"></div>
-      <div class="out" id="gacha" aria-live="polite" hidden></div>
-    </section>
-
-    <section class="box">
-      <h2>궁합 맛보기</h2>
-      <form id="quick">
-        <label for="qa">내 생년월일</label><input type="date" id="qa" required>
-        <label for="qb">상대 생년월일</label><input type="date" id="qb" required>
-        <button class="wide">궁합 점수 보기</button>
-      </form>
-      <div class="out" id="qout" aria-live="polite" hidden></div>
-    </section>
-
     <section class="box" id="apply">
-      <h2>궁합 결과지</h2>
+      <h2>두 사람 궁합 결과지</h2>
+      <p>두 사람 띠가 만나면 이런 그림이 결과지 맨 앞에 나와요.</p>
+      <div class="pics" id="pics"></div>
       <p><s>정가 1,900원</s> → <em>오픈 기념 무료, 선착순 30명</em> <span id="left"></span></p>
       <ul>
-        <li>두 사람 사주 여덟 글자와 오행 표</li>
+        <li>두 사람 띠 그림과 궁합 점수</li>
         <li>두 사람만을 위해 새로 쓰는 풀이 일곱 편</li>
         <li>지금 관계에 맞춘 조언, 궁금한 점에 대한 답</li>
-        <li>앞으로 석 달 흐름과 둘이 해 볼 일</li>
+        <li>앞으로 석 달 흐름과 둘이 해 볼 일, 사주 여덟 글자 표</li>
       </ul>
       <p><a href="#k=f8e42519a735ab045f4aa312">결과지 예시 먼저 보기 ▶</a></p>
       <form id="form">
@@ -120,10 +116,28 @@ small { display: block; margin-top: 8px; color: var(--soft); font-size: 12px; }
         <button class="wide" id="send">결과지 받기</button>
         <p class="err" id="ferr" role="alert" hidden></p>
         <p id="wait" aria-live="polite" hidden></p>
+        <img class="cover" id="wimg" alt="" width="768" height="768" hidden>
       </form>
-      <small>재미로 보는 풀이예요. 결과지는 받은 링크로 언제든 다시 볼 수 있어요.</small>
+      <small>무료로 받은 결과지는 글 두 편을 읽고 별점과 한 줄 후기를 남기면 나머지가 열려요. 재미로 보는 풀이이고, 받은 링크로 언제든 다시 볼 수 있어요.</small>
     </section>
-    <div class="cta"><a href="#apply">▶ 궁합 결과지 무료로 받기</a></div>
+
+    <section class="box">
+      <h2>궁합 맛보기</h2>
+      <form id="quick">
+        <label for="qa">내 생년월일</label><input type="date" id="qa" required>
+        <label for="qb">상대 생년월일</label><input type="date" id="qb" required>
+        <button class="wide">궁합 점수 보기</button>
+      </form>
+      <div class="out" id="qout" aria-live="polite" hidden></div>
+    </section>
+
+    <section class="box">
+      <h2>오늘의 전투력 뽑기</h2>
+      <p>내 띠를 누르면 오늘 전투력이 나와요. 하루에 한 번 바뀌어요.</p>
+      <div class="grid" id="pick"></div>
+      <div class="out" id="gacha" aria-live="polite" hidden></div>
+    </section>
+    <div class="cta"><a href="#form">▶ 궁합 결과지 무료로 받기</a></div>
   </div>
 
   <div id="result" hidden></div>
@@ -137,12 +151,17 @@ const EL = ['나무', '불', '흙', '쇠', '물'], ELC = ['#5cc47a', '#f0667c', 
 const REL = { hap6: ['짝꿍 띠', 88, '옛날부터 짝으로 묶어 온 띠예요. 같이 있으면 서로 빈 곳이 채워져요.'], hap3: ['한편 띠', 84, '같은 편으로 묶이는 띠예요. 목표가 같을 때 가장 잘 맞아요.'], same: ['같은 띠', 78, '닮은 점이 많아서 말 안 해도 통해요. 대신 고집도 닮았어요.'], plain: ['무난한 띠', 70, '크게 끌어당기지도 밀어내지도 않는 사이예요. 둘이 하기 나름이에요.'], wonjin: ['티격태격 띠', 58, '이유 없이 서운해지기 쉬운 띠예요. 좋아하는데도 자꾸 말이 엇나가요.'], chung: ['맞수 띠', 52, '정반대에 서 있는 맞수 띠예요. 끌리는 힘도, 부딪히는 힘도 커요.'] };
 const WONJIN = new Set(['0-7', '1-6', '2-9', '3-8', '4-11', '5-10']);
 const SAY = ['오늘은 먼저 말 거는 쪽이 이겨요.', '미뤄 둔 연락 하나만 해도 전투력이 올라요.', '큰 결정은 저녁 먹고 나서 하세요.', '오늘은 져 주는 게 이기는 날이에요.', '혼자 하지 말고 한 명만 끌어들이세요.', '지갑은 닫고 귀는 여는 날이에요.', '평소보다 십 분만 일찍 움직이세요.', '남의 싸움에는 끼지 않는 게 좋아요.', '생각만 하던 걸 하나 적어 두세요.', '단것 하나 챙겨 먹고 시작하세요.', '오늘 들은 칭찬은 그대로 믿어도 돼요.', '무리해서 이기려 하지 않아도 돼요.'];
+const SITE = 'gwonsu829-gif.github.io/12tti-war';
 
 const $ = id => document.getElementById(id), num = n => n.toLocaleString('ko-KR');
 const esc = s => String(s).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
 const hash = s => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.codePointAt(0), 16777619); return h >>> 0; };
 const api = (path, body) => fetch(API + path, body && { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
   .then(async r => { const j = await r.json(); if (!r.ok) throw new Error(j.error || '잠시 뒤 다시 해 주세요.'); return j; });
+const pairOf = (a, b) => Math.min(a, b) + '-' + Math.max(a, b);   // pair/작은번호-큰번호.jpg (0 쥐 … 11 돼지)
+
+// ---- 첫 화면 커플 사진
+$('pics').innerHTML = [[1, 3], [0, 6], [2, 9], [7, 10]].map(([a, b]) => `<figure><img src="pair/${a}-${b}.jpg" alt="${FULL[a]}와 ${FULL[b]}가 함께 있는 그림" width="768" height="768"><figcaption>${FULL[a]}띠 × ${FULL[b]}띠</figcaption></figure>`).join('');
 
 // ---- 맛보기(브라우저에서 바로 계산). 정식 결과지의 점수는 서버(saju.mjs)가 같은 식으로 낸다.
 // ponytail: 맛보기는 띠가 바뀌는 입춘을 2월 4일로 고정한다. 2월 3~5일생은 정식 결과지와 띠가 다르게 나올 수 있음.
@@ -163,8 +182,8 @@ $('quick').onsubmit = e => {
   if (!A || !B) o.innerHTML = '<p class="err">생년월일을 다시 확인해 주세요.</p>';
   else {
     const r = REL[rel(A.tti, B.tti)];
-    o.innerHTML = `<p>${FULL[A.tti]}띠 × ${FULL[B.tti]}띠 · ${r[0]}</p><p class="big">${r[1] + [4, 8, -6, -6, 8][(B.el - A.el + 5) % 5]}점</p><p>${r[2]}</p><small>왜 이 점수인지, 어디서 부딪히고 어떻게 푸는지는 아래 결과지에서 두 사람에 맞춰 써 드려요.</small>`;
-    if (!$('ad').value) { $('ad').value = $('qa').value; $('bd').value = $('qb').value; }   // 아래 신청 폼에 미리 채워 준다
+    o.innerHTML = `<p>${FULL[A.tti]}띠 × ${FULL[B.tti]}띠 · ${r[0]}</p><p class="big">${r[1] + [4, 8, -6, -6, 8][(B.el - A.el + 5) % 5]}점</p><p>${r[2]}</p><small>왜 이 점수인지, 어디서 부딪히고 어떻게 푸는지는 결과지에서 두 사람에 맞춰 써 드려요.</small><a class="btn wide" href="#form">이유까지 받아 보기</a>`;
+    if (!$('ad').value) { $('ad').value = $('qa').value; $('bd').value = $('qb').value; }   // 신청 폼에 미리 채워 준다
   }
   o.hidden = false;
 };
@@ -189,13 +208,16 @@ $('form').onsubmit = async e => {
   const waits = ['두 사람 사주 여덟 글자를 세우는 중이에요.', '오행을 세고 있어요.', '두 사람만을 위한 글을 쓰는 중이에요. 1분쯤 걸려요.', '거의 다 썼어요. 창을 닫지 말고 기다려 주세요.'];
   let k = 0; const show = () => { $('wait').textContent = waits[Math.min(k++, waits.length - 1)]; };
   $('ferr').hidden = true; $('wait').hidden = false; $('send').disabled = true; show();
+  const A = birth($('ad').value), B = birth($('bd').value);   // 기다리는 동안 두 사람 띠 그림을 먼저 보여 준다
+  if (A && B) { $('wimg').src = `pair/${pairOf(A.tti, B.tti)}.jpg`; $('wimg').alt = `${FULL[A.tti]}와 ${FULL[B.tti]}가 함께 있는 그림`; $('wimg').hidden = false; }
+  $('wait').scrollIntoView({ behavior: 'smooth', block: 'start' });
   const timer = setInterval(show, 9000);
   try {
     const { id } = await api('/api/result', { a: { name: $('an').value, date: $('ad').value, time: $('at').value }, b: { name: $('bn').value, date: $('bd').value, time: $('bt').value }, stage: $('stage').value, q: $('q').value, agree: $('agree').checked });
     location.hash = '#k=' + id;
   } catch (err) {
     $('ferr').textContent = err.message === 'Failed to fetch' ? '서버에 닿지 못했어요. 잠시 뒤 다시 눌러 주세요.' : err.message; $('ferr').hidden = false;
-  } finally { clearInterval(timer); $('wait').hidden = true; $('send').disabled = false; }
+  } finally { clearInterval(timer); $('wait').hidden = $('wimg').hidden = true; $('send').disabled = false; }
 };
 
 // ---- 결과지 그리기. 이름과 글은 사람이 적었거나 AI가 쓴 것이라 전부 esc()를 거친다.
@@ -206,43 +228,89 @@ function person(name, p) {
     : '<div><small>시주</small><i>&nbsp;</i><b class="q">?<u>시간</u></b><b class="q">?<u>모름</u></b><i>&nbsp;</i></div>').join('')}</div>
     <div style="margin-top:10px">${p.el.map((n, i) => `<div class="bar">${EL[i]}<span><i style="width:${n / max * 100}%;background:${ELC[i]}"></i></span>${n}</div>`).join('')}</div>`;
 }
-async function showResult(id) {
+const stars = (btn = '후기 남기기') => `<div class="stars" id="stars">${[1, 2, 3, 4, 5].map(n => `<button type="button" aria-label="별 ${n}개" aria-pressed="false">★</button>`).join('')}</div>
+  <label for="rt">한 줄 후기(10자 이상)</label><textarea id="rt" rows="2" maxlength="300" placeholder="예: 연락 문제 짚은 게 딱 우리 얘기였어요"></textarea>
+  <button class="wide" id="rs" type="button">${btn}</button><p class="err" id="rerr" role="alert" hidden></p>`;
+const tools = '<div class="duo"><button type="button" class="share">상대에게 보내기</button><button type="button" class="card">이미지로 저장</button></div>';
+
+async function showResult(id, quiet) {
   const box = $('result');
   if (!/^[0-9a-f]{24}$/.test(id)) return box.innerHTML = '<section class="box"><p class="err">링크가 잘못됐어요. 받은 링크를 그대로 다시 열어 주세요.</p></section>';
-  box.innerHTML = '<section class="box"><p>결과지를 펼치는 중이에요.</p></section>';
+  if (!quiet) box.innerHTML = '<section class="box"><p>결과지를 펼치는 중이에요.</p></section>';
   let r; try { r = await api('/api/result/' + id); } catch (e) { return box.innerHTML = `<section class="box"><p class="err">${esc(e.message === 'Failed to fetch' ? '서버에 닿지 못했어요. 잠시 뒤 다시 열어 주세요.' : e.message)}</p></section>`; }
   const [nA, nB] = r.names.map(esc), f = r.facts, o = r.out;
+  const secs = o.sections.map((s, i) => `<section class="box sec"><h2><span class="num">${String(i + 1).padStart(2, '0')}</span>${esc(s.title)}</h2><p>${esc(s.body)}</p></section>`).join('');
   box.innerHTML = `
     <section class="box"><img class="cover" src="pair/${f.pair}.jpg" alt="${FULL[f.a.tti]}와 ${FULL[f.b.tti]}가 함께 있는 그림" width="768" height="768" onerror="this.remove()">
-      <h2>${esc(o.headline)}</h2><p>${nA} × ${nB} · ${f.a.ttiName} × ${f.b.ttiName} · ${f.relName}</p><p class="big">${f.score}점</p><p><em>${esc(o.label)}</em></p><p>${esc(o.summary)}</p>
-      <button class="wide" id="share" type="button">링크 복사해서 상대에게 보내기</button></section>
-    <section class="box"><h2>두 사람의 사주</h2>${person(nA, f.a)}${person(nB, f.b)}
-      <small>글자 위아래 작은 글씨는 태어난 날을 기준으로 본 관계(십성)예요. 색은 오행이에요: 나무 초록, 불 빨강, 흙 노랑, 쇠 회색, 물 파랑.</small></section>
-    ${o.sections.map((s, i) => `<section class="box sec"><h2><span class="num">${String(i + 1).padStart(2, '0')}</span>${esc(s.title)}</h2><p>${esc(s.body)}</p></section>`).join('')}
+      <h2>${esc(o.headline)}</h2><p>${nA} × ${nB} · ${f.a.ttiName} × ${f.b.ttiName} · ${f.relName}</p><p class="big">${f.score}점</p><p><em>${esc(o.label)}</em></p><p>${esc(o.summary)}</p>${tools}</section>
+    ${secs}
+    ${r.locked ? `<section class="box gate" id="rv"><h2>여기까지 어땠어요?</h2><p>별점과 한 줄을 남기면 나머지가 열려요.</p>
+      <p>남은 글 ${r.rest.length}편과 앞으로 석 달, 둘이 해 볼 일, 두 사람의 사주 표가 기다리고 있어요.</p>
+      <ol start="${o.sections.length + 1}">${r.rest.map(t => `<li>${esc(t)}</li>`).join('')}</ol>${stars('후기 남기고 나머지 열기')}</section>` : `
     <section class="box"><h2>앞으로 석 달</h2>${o.months.map(m => `<h3>${esc(m.when)}</h3><p>${esc(m.text)}</p>`).join('')}</section>
     <section class="box"><h2>둘이 해 볼 일</h2><ol>${o.todo.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
-      <div class="lucky"><div><small>물건</small>${esc(o.lucky.item)}</div><div><small>색</small>${esc(o.lucky.color)}</div><div><small>숫자</small>${esc(o.lucky.number)}</div></div>
+      <div class="lucky"><div><small>물건</small>${esc(o.lucky.item)}</div><div><small>색</small>${esc(o.lucky.color)}</div><div><small>숫자</small>${esc(o.lucky.number)}</div></div></section>
+    <section class="box"><h2>두 사람의 사주</h2>${person(nA, f.a)}${person(nB, f.b)}
+      <small>글자 위아래 작은 글씨는 태어난 날을 기준으로 본 관계(십성)예요. 색은 오행이에요: 나무 초록, 불 빨강, 흙 노랑, 쇠 회색, 물 파랑.</small>
       <small>재미로 보는 풀이예요. 달은 절기 기준으로 바꾸고, 시간 보정 없이 한국 시각 그대로 계산했어요.${f.a.cols.length < 4 || f.b.cols.length < 4 ? ' 태어난 시간을 모르는 사람은 시주를 빼고 봤어요.' : ''}</small></section>
-    <section class="box" id="rv">${r.reviewed ? '<p>후기 고마워요. 잘 받았어요.</p>' : `<h2>어땠어요?</h2><p>별점과 한 줄만 남겨 주세요. 다음 결과지를 더 잘 쓰는 데 써요.</p>
-      <div class="stars" id="stars">${[1, 2, 3, 4, 5].map(n => `<button type="button" aria-label="별 ${n}개" aria-pressed="false">★</button>`).join('')}</div>
-      <label for="rt">한 줄 후기(10자 이상)</label><textarea id="rt" rows="2" maxlength="300"></textarea>
-      <button class="wide" id="rs" type="button">후기 남기기</button><p class="err" id="rerr" role="alert" hidden></p>`}</section>
-    <section class="box"><a class="btn" href="#apply">나도 다른 사람과 궁합 보기</a></section>`;
-  $('share').onclick = () => navigator.clipboard?.writeText(location.href).then(() => { $('share').textContent = '복사했어요'; }, () => {});
-  if (r.reviewed) return;
-  let stars = 0;
-  $('stars').onclick = e => { const i = [...$('stars').children].indexOf(e.target); if (i < 0) return; stars = i + 1; [...$('stars').children].forEach((b, k) => b.setAttribute('aria-pressed', k < stars)); };
+    ${r.reviewed ? '' : `<section class="box" id="rv"><h2>어땠어요?</h2><p>별점과 한 줄만 남겨 주세요. 다음 결과지를 더 잘 쓰는 데 써요.</p>${stars()}</section>`}
+    <section class="box"><h2>다 읽었다면</h2><p>상대에게 보내거나, 스토리에 올릴 그림으로 저장해 보세요.</p>${tools}<a class="btn wide" href="#form">나도 다른 사람과 궁합 보기</a></section>`}`;
+  box.querySelectorAll('.share').forEach(b => b.onclick = () => share(r, b));
+  box.querySelectorAll('.card').forEach(b => b.onclick = () => card(r, b));
+  if (!$('stars')) return;
+  let n = 0;
+  $('stars').onclick = e => { const i = [...$('stars').children].indexOf(e.target); if (i < 0) return; n = i + 1; [...$('stars').children].forEach((b, k) => b.setAttribute('aria-pressed', k < n)); };
   $('rs').onclick = async () => {
-    try { await api('/api/review', { id, stars, text: $('rt').value }); $('rv').innerHTML = '<p>후기 고마워요. 잘 받았어요.</p>'; }
-    catch (e) { $('rerr').textContent = e.message; $('rerr').hidden = false; }
+    $('rs').disabled = true;
+    try {
+      await api('/api/review', { id, stars: n, text: $('rt').value });
+      if (!r.locked) return $('rv').innerHTML = '<p>후기 고마워요. 잘 받았어요.</p>';
+      await showResult(id, true);   // 서버가 이제 전부 돌려준다
+      document.querySelectorAll('#result .sec')[o.sections.length]?.scrollIntoView();
+    } catch (e) { $('rerr').textContent = e.message; $('rerr').hidden = false; $('rs').disabled = false; }
   };
+}
+
+// ---- 공유: 휴대폰 공유 창, 안 되면 링크 복사
+function share(r, btn) {
+  const url = location.href, text = `${r.names[0]} × ${r.names[1]} 궁합 ${r.facts.score}점, 열두 띠 운세 결과지`;
+  if (navigator.share) return navigator.share({ title: '열두 띠 궁합', text, url }).catch(() => {});
+  navigator.clipboard?.writeText(url).then(() => { btn.textContent = '링크를 복사했어요'; }, () => {});
+}
+// ---- 이미지로 저장: 인스타 스토리 크기(1080×1920) 카드 한 장. 캔버스 글자는 HTML이 아니라 esc()가 필요 없다
+function lines(g, s, max) {
+  const out = [''];
+  for (const w of s.split(' ')) { const t = out[out.length - 1] ? out[out.length - 1] + ' ' + w : w; if (g.measureText(t).width > max && out[out.length - 1]) out.push(w); else out[out.length - 1] = t; }
+  return out.slice(0, 3);
+}
+async function card(r, btn) {
+  btn.disabled = true;
+  try {
+    const f = r.facts, c = document.createElement('canvas'), g = c.getContext('2d'), img = new Image();
+    c.width = 1080; c.height = 1920; img.src = `pair/${f.pair}.jpg`;
+    await Promise.all([document.fonts.load('60px G11'), img.decode()].map(p => p.catch(() => {})));
+    const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, '#faf0d4'); bg.addColorStop(1, '#eeddb4');
+    g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920); g.textAlign = 'center';
+    const text = (s, size, color, y) => { g.font = `${size}px G11, sans-serif`; g.fillStyle = color; g.fillText(s, 540, y); };
+    text('열두 띠 궁합', 64, '#2b1d14', 170); g.fillStyle = '#c8321e'; g.fillRect(340, 200, 400, 8);
+    if (img.naturalWidth) { g.fillStyle = 'rgba(43,29,20,.22)'; g.fillRect(110, 270, 880, 880); g.drawImage(img, 100, 260, 880, 880); g.lineWidth = 6; g.strokeStyle = '#2b1d14'; g.strokeRect(100, 260, 880, 880); }
+    text(`${r.names[0]} × ${r.names[1]}`, 60, '#2b1d14', 1260);
+    text(`${f.a.ttiName} × ${f.b.ttiName} · ${f.relName}`, 38, '#7a6652', 1330);
+    text(f.score + '점', 190, '#c8321e', 1530);
+    g.font = '50px G11, sans-serif'; lines(g, r.out.headline, 920).forEach((l, i) => text(l, 50, '#2b1d14', 1650 + i * 68));
+    text(SITE, 34, '#7a6652', 1860);
+    const blob = await new Promise(res => c.toBlob(res, 'image/png')), file = new File([blob], 'tti-gunghap.png', { type: 'image/png' });
+    if (navigator.canShare?.({ files: [file] })) { try { return await navigator.share({ files: [file] }); } catch (e) { if (e.name === 'AbortError') return; } }
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: file.name });
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1e4);
+  } finally { btn.disabled = false; }
 }
 
 function route() {
   const h = location.hash, isResult = h.startsWith('#k=');
   $('home').hidden = isResult; $('result').hidden = !isResult;
   if (isResult) { showResult(h.slice(3)); scrollTo(0, 0); }
-  else if (h === '#apply') $('apply').scrollIntoView();
+  else if (h === '#apply' || h === '#form') $(h.slice(1)).scrollIntoView();
 }
 addEventListener('hashchange', route); route();
 </script>

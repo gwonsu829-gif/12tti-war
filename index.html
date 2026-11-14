@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- 열두 띠 전쟁 현황판. state.json(= data/dayN.json)과 map.png를 읽는다. 둘 다 `DAY=N python render_reel.py site`가 만든다. -->
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>열두 띠 전쟁</title>
+<meta name="description" content="댓글 한 글자 = 병사 한 마리. 열두 띠가 땅을 두고 싸우는 중.">
+<meta property="og:title" content="열두 띠 전쟁">
+<meta property="og:description" content="댓글 한 글자 = 병사 한 마리. 지금 우리 띠는 몇 등?">
+<meta property="og:image" content="map.png">
+<style>
+@font-face { font-family: G11; src: url(Galmuri11-Bold.woff2); font-display: swap; }
+:root { --navy: #1a1f5c; --dark: #1a1430; --gold: #f2c14e; --red: #ff4d4d; --yel: #ffe14d; --soft: #cfd6ff; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #14226f linear-gradient(#2c4ebe, #14226f) fixed; color: #fff; font: 16px/1.6 G11, 'Malgun Gothic', sans-serif; -webkit-font-smoothing: none; }
+main { max-width: 480px; margin: 0 auto; padding: 16px 16px 96px; }
+h1 { margin: 8px 0 0; padding: 10px; text-align: center; font-size: 32px; color: var(--yel); background: #2a0f4a; border: 3px solid var(--gold); outline: 3px solid var(--dark); text-shadow: 3px 3px 0 #b3261e; }
+h2 { margin: 0 0 8px; font-size: 18px; color: var(--yel); }
+.top { display: flex; justify-content: space-between; gap: 8px; margin: 14px 0; font-size: 15px; }
+.top b { color: var(--yel); }
+.top .dl b { color: var(--red); }
+.box { margin: 16px 0; padding: 12px; background: var(--navy); border: 3px solid var(--gold); outline: 3px solid var(--dark); }
+.map { display: block; width: 100%; height: auto; aspect-ratio: 1; image-rendering: pixelated; border: 3px solid var(--gold); outline: 3px solid var(--dark); background: #2c4ebe; }
+.note { margin: 12px 0; padding: 8px; text-align: center; color: var(--dark); background: var(--yel); }
+.row { display: grid; grid-template-columns: 1.4em 1.6em 1fr 5.2em 3.6em; gap: 6px; align-items: center; padding: 3px 4px; font-size: 14px; }
+.row.first { background: #8a6a12; }
+.row.last { background: #7a1c18; }
+.row .n { text-align: right; color: #8f98d8; }
+.row .c { text-align: center; color: var(--dark); }
+.row .bar { height: 12px; background: var(--dark); }
+.row .bar i { display: block; height: 100%; }
+.row .v, .row .l { text-align: right; }
+.row .l { color: var(--soft); }
+.head { color: var(--soft); font-size: 12px; }
+ul { margin: 0; padding-left: 1.2em; }
+li { margin: 4px 0; }
+em { font-style: normal; color: var(--yel); }
+small { display: block; margin-top: 8px; color: var(--soft); font-size: 12px; }
+.cta { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px; background: linear-gradient(transparent, #14226f 40%); }
+.cta a { display: block; max-width: 448px; margin: 0 auto; padding: 14px; text-align: center; color: #fff; font-size: 18px; text-decoration: none; background: #b3261e; border: 3px solid var(--gold); outline: 3px solid var(--dark); }
+.cta a:focus-visible { outline-color: #fff; }
+</style>
+<main>
+  <h1>열두 띠 전쟁</h1>
+  <div class="top"><span>시즌1 <b id="day">DAY 0</b></span><span class="dl">오늘 마감까지 <b id="left">--:--:--</b></span></div>
+  <p class="note" id="note" hidden></p>
+  <img class="map" id="map" src="map.png" alt="열두 띠가 나눠 가진 대륙 지도. 띠마다 색이 다르고 가운데에 성이 있다." width="720" height="720">
+  <section class="box" id="sum" hidden>
+    <h2 id="sumT"></h2>
+    <ul id="sumL"></ul>
+  </section>
+  <section class="box" id="rank" hidden>
+    <h2 id="rankT">순위</h2>
+    <div class="row head"><span></span><span></span><span></span><span class="v">병사</span><span class="l">땅</span></div>
+    <div id="rows"></div>
+    <small id="basis"></small>
+  </section>
+  <section class="box">
+    <h2>참여 방법</h2>
+    <ul>
+      <li>인스타그램 영상 댓글에 <em>내 띠 한 글자</em>만 쓰면 병사 한 마리.</li>
+      <li>쥐 소 범 토 용 뱀 말 양 원 닭 개 돼. 호랑이, 토끼, 원숭이, 돼지처럼 풀어 써도 돼요.</li>
+      <li>병사가 많은 띠가 옆 띠의 땅을 빼앗아요.</li>
+      <li>그날 1등은 가운데 성을 차지해요.</li>
+      <li>어제 꼴찌 띠는 오늘 병사가 <em>두 배</em>.</li>
+      <li><em>매일 밤 9시</em>에 마감, 결과는 다음 영상에서. 9시 뒤 댓글은 다음 날 병사로 넘어가요.</li>
+    </ul>
+    <small>참여는 인스타그램 댓글로만 받아요. 이 페이지는 결과를 보는 곳이에요.</small>
+  </section>
+</main>
+<div class="cta"><a id="go" href="https://www.instagram.com/12tti.war/">▶ 댓글 달러 가기</a></div>
+<script>
+const NAMES = ['쥐', '소', '범', '토', '용', '뱀', '말', '양', '원', '닭', '개', '돼'];
+const FULL = ['쥐', '소', '범', '토끼', '용', '뱀', '말', '양', '원숭이', '닭', '개', '돼지'];
+const COL = ['#7f93ad', '#a8663a', '#f28c28', '#d9d0ff', '#17a88a', '#86c440', '#d9443f', '#efe2b4', '#d6a531', '#9b59d0', '#3f7fe0', '#ff8fae'];
+const $ = id => document.getElementById(id), num = n => n.toLocaleString('ko-KR');
+
+// 마감(한국 시각 밤 9시)까지 남은 시간
+function tick() {
+  const k = new Date(Date.now() + 9 * 36e5), end = Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate(), 21);
+  let s = Math.floor((end - k.getTime()) / 1000); if (s < 0) s += 86400;
+  $('left').textContent = [s / 3600, s / 60 % 60, s % 60].map(v => String(Math.floor(v)).padStart(2, '0')).join(':');
+}
+tick(); setInterval(tick, 1000);
+
+fetch('state.json?' + Date.now()).then(r => r.json()).then(s => {
+  $('map').src = 'map.png?' + (s.cutoff || '');
+  if (s.next_reel) $('go').href = s.next_reel;
+  if (!s.day) { $('note').textContent = '첫 결과는 밤 9시 마감 뒤에 올라와요.'; $('note').hidden = false; return; }
+  $('day').textContent = 'DAY ' + (s.day + 1);
+  if (s.note) { $('note').textContent = '집계 중! 아래는 확정 전 숫자예요.'; $('note').hidden = false; }
+  const sol = NAMES.map(n => s.soldiers[n]), w = NAMES.map((_, k) => ((k < 11 ? s.borders[k + 1] : s.borders[0] + 12) - s.borders[k]) / 12 * 100);
+  const order = NAMES.map((_, i) => i).sort((a, b) => sol[b] - sol[a]), max = sol[order[0]] || 1;
+  const d = new Date(s.cutoff), when = `${d.getMonth() + 1}월 ${d.getDate()}일 밤 9시 마감`;
+  $('sumT').textContent = `DAY ${s.day} 결과`;
+  $('sumL').innerHTML = `<li>댓글 <em>${num(s.total_comments)}개</em>, <em>${num(s.total_people)}명</em>이 싸웠어요.</li>
+    <li>1등 <em>${FULL[s.top]}띠</em>가 가운데 성을 차지했어요.</li>
+    <li>꼴찌 <em>${FULL[s.last]}띠</em>는 오늘 병사가 두 배예요.</li>`;
+  $('rankT').textContent = `DAY ${s.day} 순위`;
+  $('rows').innerHTML = order.map((i, k) => `<div class="row${k === 0 ? ' first' : k === 11 ? ' last' : ''}">
+    <span class="n">${k + 1}</span><span class="c" style="background:${COL[i]}">${NAMES[i]}</span>
+    <span class="bar"><i style="width:${sol[i] / max * 100}%;background:${COL[i]}"></i></span>
+    <span class="v">${num(sol[i])}마리</span><span class="l">${w[i].toFixed(1)}%</span></div>`).join('');
+  $('basis').textContent = `${when} 기준. 땅은 대륙 전체에서 차지한 비율이에요.`;
+  $('sum').hidden = $('rank').hidden = false;
+}).catch(() => { $('note').textContent = '결과를 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.'; $('note').hidden = false; });
+</script>
+</html>

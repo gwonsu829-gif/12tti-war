@@ -42,9 +42,9 @@ a { color: var(--seal); }
 </style>
 <main>
   <h1>열두 띠 전쟁</h1>
-  <div class="top"><span>시즌1 <b id="day">DAY 0</b></span><span class="dl">달 뜨기까지 <b id="left">--:--:--</b></span></div>
+  <div class="top"><span>시즌1 <b id="day">DAY 0</b></span><span class="dl">오늘 댓글 세기까지 <b id="left">--:--:--</b></span></div>
   <p class="note" id="note" hidden></p>
-  <img class="map" id="map" src="map.png" alt="열두 띠가 나눠 가진 대륙 지도. 띠마다 색이 다르고, 오른쪽 위 달에 오늘의 1등 띠가 올라가 있다." width="720" height="720">
+  <img class="map" id="map" src="map.png" alt="열두 띠가 나눠 가진 대륙 지도. 띠마다 색이 다르고, 가운데 땅에는 1등 띠의 깃발이 꽂혀 있다." width="720" height="720">
   <section class="box" id="sum" hidden>
     <h2 id="sumT"></h2>
     <ul id="sumL"></ul>
@@ -65,9 +65,9 @@ a { color: var(--seal); }
       <li>인스타그램 영상 댓글에 <em>내 띠 한 글자</em>만 쓰면 병사 한 마리.</li>
       <li>쥐 소 범 토 용 뱀 말 양 원 닭 개 돼. 호랑이, 토끼, 원숭이, 돼지처럼 풀어 써도 돼요.</li>
       <li>병사가 많은 띠가 옆 띠의 땅을 빼앗아요.</li>
-      <li>그날 1등 띠는 그날 밤 <em>달</em>을 차지해요.</li>
+      <li>그날 1등 띠는 <em>가운데 땅</em>을 차지해요. 힘이 넘치면 가운데에서부터 약한 띠 땅까지 조금씩 먹어요.</li>
       <li>어제 꼴찌 띠는 오늘 병사가 <em>두 배</em>.</li>
-      <li><em>매일 밤 9시</em>, 달이 뜨면 댓글을 세요. 결과는 다음 날 영상으로 알려요. 9시 뒤 댓글은 다음 날 병사로 넘어가요.</li>
+      <li><em>매일 밤 9시</em>에 댓글을 세요. 결과는 다음 날 영상으로 알려요. 9시 뒤 댓글은 다음 날 병사로 넘어가요.</li>
     </ul>
     <small>참여는 인스타그램 댓글로만 받아요. 이 페이지는 결과를 보는 곳이에요.</small>
   </section>
@@ -93,12 +93,12 @@ fetch('state.json?' + Date.now()).then(r => r.json()).then(s => {
   if (!s.day) { $('note').textContent = '첫 결과는 밤 9시에 댓글을 센 뒤 올라와요.'; $('note').hidden = false; return; }
   $('day').textContent = 'DAY ' + (s.day + 1);
   if (s.note) { $('note').textContent = '집계 중! 아래는 확정 전 숫자예요.'; $('note').hidden = false; }
-  const sol = NAMES.map(n => s.soldiers[n]), w = NAMES.map((_, k) => ((k < 11 ? s.borders[k + 1] : s.borders[0] + 12) - s.borders[k]) / 12 * 100);
+  const sol = NAMES.map(n => s.soldiers[n]), w = s.share || NAMES.map((_, k) => ((k < 11 ? s.borders[k + 1] : s.borders[0] + 12) - s.borders[k]) / 12 * 100);   // share = 가운데에서 먹은 땅까지 넣은 비율
   const order = NAMES.map((_, i) => i).sort((a, b) => sol[b] - sol[a]), max = sol[order[0]] || 1;
   const d = new Date(s.cutoff < 1e12 ? s.cutoff * 1000 : s.cutoff), when =`${d.getMonth() + 1}월 ${d.getDate()}일 밤 9시`;
   $('sumT').textContent = `DAY ${s.day} 결과`;
   $('sumL').innerHTML = `<li>댓글 <em>${num(s.total_comments)}개</em>, <em>${num(s.total_people)}명</em>이 싸웠어요.</li>
-    <li>1등 <em>${FULL[s.top]}띠</em>가 오늘 밤 달을 차지했어요.</li>
+    <li>1등 <em>${FULL[s.top]}띠</em>가 가운데를 차지하고, 약한 띠 땅까지 먹었어요.</li>
     <li>꼴찌 <em>${FULL[s.last]}띠</em>는 오늘 병사가 두 배예요.</li>`;
   $('rankT').textContent = `DAY ${s.day} 순위`;
   $('rows').innerHTML = order.map((i, k) => `<div class="row${k === 0 ? ' first' : k === 11 ? ' last' : ''}">
